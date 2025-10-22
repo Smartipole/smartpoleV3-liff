@@ -428,6 +428,7 @@
             background-color: #F0FDF4;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="form-container">
@@ -729,25 +730,20 @@
                 const result = await response.json();
 
                 if (response.ok && result.status === 'success') {
-                    showMessage(`✅ ส่งข้อมูลสำเร็จ! เลขที่การแจ้งซ่อม: ${result.requestId || 'กำลังสร้าง'}\n\nกรุณากลับไปที่แอปพลิเคชัน LINE เพื่อดูข้อมูลการแจ้งซ่อม`, 'success');
-                    
-                    // รีเซ็ตฟอร์ม
+                    const requestId = result.requestId || '????????????????';
+                    showSuccessDialog(requestId);
+                    messageArea.classList.add('hidden');
+
+                    // ?,??,?1??,<?1?,?,Y?,-?,??1O?,?
                     form.reset(); 
                     imagePreview.classList.add('hidden');
                     problemDescriptionOtherTextarea.classList.add('hidden');
                     problemDescriptionOtherTextarea.required = false;
-                    locationDisplay.innerHTML = '<span>📍</span> ยังไม่ได้ระบุตำแหน่ง (แตะปุ่มด้านบนเพื่อระบุพิกัด)';
+                    locationDisplay.innerHTML = '<span>dY"?</span> ?,??,?,?1,?,??1^?1,?,"?1%?,??,??,s?,,?,?,3?1??,??,T?1^?,? (?1??,?,??,>?,,?1^?,??,"?1%?,??,T?,s?,T?1??,z?,??1^?,-?,??,??,s?,,?,z?,'?,??,?,")';
                     locationDisplay.classList.remove('has-location');
-                    
-                    // ลบ filled class
+
+                    // ?,??,s filled class
                     document.querySelectorAll('.filled').forEach(el => el.classList.remove('filled'));
-                    
-                    // Auto-close ถ้าเป็น LIFF
-                    setTimeout(() => { 
-                        if (typeof liff !== 'undefined' && liff.isInClient()) {
-                            liff.closeWindow(); 
-                        }
-                    }, 3000);
                 } else {
                     showMessage(result.message || 'เกิดข้อผิดพลาดในการส่งข้อมูล', 'error');
                 }
@@ -794,6 +790,51 @@
                 }, 10000);
             }
         }
+
+        function showSuccessDialog(requestId) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '????????????????????!',
+                    html: `
+                        <div style="font-size:1.05rem;margin-bottom:1rem;">
+                            ????????????????????
+                            <strong style="display:block;font-size:1.3rem;margin-top:0.5rem;">${requestId}</strong>
+                        </div>
+                        <div style="text-align:left;line-height:1.6;font-size:0.95rem;">
+                            <p>??????????????????????????????:</p>
+                            <ul style="margin:0.75rem 0 0 1.25rem;padding-left:0;">
+                                <li>????????????????????????????? \"???????????\"</li>
+                                <li>????????????????? LINE ?????? \"???????????\"</li>
+                                <li>???????????????????? ?????????????????????????</li>
+                            </ul>
+                        </div>
+                    `,
+                    confirmButtonText: '???????',
+                    confirmButtonColor: '#F59E0B'
+                }).then(() => {
+                    if (typeof liff !== 'undefined' && liff.isInClient()) {
+                        liff.closeWindow();
+                    }
+                });
+            } else {
+                showMessage(`????????????????????! ???????????????????? ${requestId}`, 'success');
+                setTimeout(() => {
+                    if (typeof liff !== 'undefined' && liff.isInClient()) {
+                        liff.closeWindow();
+                    }
+                }, 3000);
+            }
+        }
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+

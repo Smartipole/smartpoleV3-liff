@@ -682,14 +682,65 @@
 
         function formatDate(dateString) {
             if (!dateString) return '-';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('th-TH', {
+            const date = parseDateValue(dateString);
+            if (!date) return dateString;
+
+            return date.toLocaleString('th-TH', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
             });
+        }
+
+        function parseDateValue(value) {
+            if (!value) return null;
+            if (value instanceof Date && !Number.isNaN(value.getTime())) {
+                return value;
+            }
+
+            if (typeof value !== 'string') {
+                return null;
+            }
+
+            const trimmed = value.trim();
+
+            // ISO 8601 or RFC date strings
+            const isoDate = new Date(trimmed);
+            if (!Number.isNaN(isoDate.getTime())) {
+                return isoDate;
+            }
+
+            // Handle Thai locale formats e.g. 22/10/2567 14:30:00
+            const thaiMatch = trimmed.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+            if (thaiMatch) {
+                let [ , day, month, year, hour = '0', minute = '0', second = '0' ] = thaiMatch;
+                let yearNum = parseInt(year, 10);
+
+                if (yearNum < 100) {
+                    yearNum += 2000;
+                }
+
+                if (yearNum > 2400) {
+                    yearNum -= 543; // convert from Buddhist year to Gregorian
+                }
+
+                const parsed = new Date(
+                    yearNum,
+                    parseInt(month, 10) - 1,
+                    parseInt(day, 10),
+                    parseInt(hour, 10),
+                    parseInt(minute, 10),
+                    parseInt(second, 10)
+                );
+
+                if (!Number.isNaN(parsed.getTime())) {
+                    return parsed;
+                }
+            }
+
+            return null;
         }
 
         function showListView() {
