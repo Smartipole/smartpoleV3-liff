@@ -537,6 +537,17 @@
         const longitudeInput = document.getElementById('longitude');
         
         const problemTypeSelect = document.getElementById('problemTypeSelect');
+        const OTHER_PROBLEM_TYPE_FLAG = 'other';
+        const otherProblemOption = problemTypeSelect ? problemTypeSelect.querySelector('option:last-child') : null;
+        if (otherProblemOption && !otherProblemOption.dataset.problemType) {
+            otherProblemOption.dataset.problemType = OTHER_PROBLEM_TYPE_FLAG;
+        }
+
+        function isOtherProblemSelected() {
+            const selectedOption = problemTypeSelect.options[problemTypeSelect.selectedIndex];
+            return selectedOption && selectedOption.dataset.problemType === OTHER_PROBLEM_TYPE_FLAG;
+        }
+
         const problemDescriptionOtherTextarea = document.getElementById('problemDescriptionOther');
         const finalProblemDescriptionInput = document.getElementById('problemDescription'); 
 
@@ -630,16 +641,16 @@
 
         // จัดการการเลือกประเภทปัญหา
         problemTypeSelect.addEventListener('change', function() {
-            if (this.value === 'อื่นๆ') {
+            if (isOtherProblemSelected()) {
                 problemDescriptionOtherTextarea.classList.remove('hidden');
                 problemDescriptionOtherTextarea.required = true;
                 problemDescriptionOtherTextarea.focus();
             } else {
                 problemDescriptionOtherTextarea.classList.add('hidden');
                 problemDescriptionOtherTextarea.required = false;
-                problemDescriptionOtherTextarea.value = ''; 
+                problemDescriptionOtherTextarea.value = '';
             }
-            
+
             if (this.value) {
                 this.classList.add('filled');
             } else {
@@ -730,19 +741,19 @@
                 const result = await response.json();
 
                 if (response.ok && result.status === 'success') {
-                    const requestId = result.requestId || '????????????????';
+                    const requestId = result.requestId || 'ไม่ระบุ';
                     showSuccessDialog(requestId);
                     messageArea.classList.add('hidden');
 
-                    // ?,??,?1??,<?1?,?,Y?,-?,??1O?,?
+                    // รีเซ็ตฟอร์มกลับสู่สถานะเริ่มต้น
                     form.reset(); 
                     imagePreview.classList.add('hidden');
                     problemDescriptionOtherTextarea.classList.add('hidden');
                     problemDescriptionOtherTextarea.required = false;
-                    locationDisplay.innerHTML = '<span>dY"?</span> ?,??,?,?1,?,??1^?1,?,"?1%?,??,??,s?,,?,?,3?1??,??,T?1^?,? (?1??,?,??,>?,,?1^?,??,"?1%?,??,T?,s?,T?1??,z?,??1^?,-?,??,??,s?,,?,z?,'?,??,?,")';
+                    locationDisplay.innerHTML = '<span>📍 ยังไม่มีพิกัด</span> กรุณากดปุ่ม "ระบุพิกัด GPS ของคุณ" เพื่อให้ระบบระบุตำแหน่งอัตโนมัติ (หรือระบุหมายเลขเสาได้)';
                     locationDisplay.classList.remove('has-location');
 
-                    // ?,??,s filled class
+                    // ลบ filled class
                     document.querySelectorAll('.filled').forEach(el => el.classList.remove('filled'));
                 } else {
                     showMessage(result.message || 'เกิดข้อผิดพลาดในการส่งข้อมูล', 'error');
@@ -795,22 +806,22 @@
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
                     icon: 'success',
-                    title: '????????????????????!',
+                    title: 'ส่งข้อมูลสำเร็จ!',
                     html: `
                         <div style="font-size:1.05rem;margin-bottom:1rem;">
-                            ????????????????????
+                            เลขที่คำขอของคุณคือ
                             <strong style="display:block;font-size:1.3rem;margin-top:0.5rem;">${requestId}</strong>
                         </div>
                         <div style="text-align:left;line-height:1.6;font-size:0.95rem;">
-                            <p>??????????????????????????????:</p>
+                            <p>คุณสามารถติดตามสถานะได้ที่:</p>
                             <ul style="margin:0.75rem 0 0 1.25rem;padding-left:0;">
-                                <li>????????????????????????????? \"???????????\"</li>
-                                <li>????????????????? LINE ?????? \"???????????\"</li>
-                                <li>???????????????????? ?????????????????????????</li>
+                                <li>พิมพ์คำสั่งในแชทว่า "ตรวจสถานะ"</li>
+                                <li>หรือส่งข้อความใน LINE ว่า "ตรวจสถานะ"</li>
+                                <li>และระบุเลขที่คำขอ เพื่อตรวจสอบสถานะ</li>
                             </ul>
                         </div>
                     `,
-                    confirmButtonText: '???????',
+                    confirmButtonText: 'เข้าใจแล้ว',
                     confirmButtonColor: '#F59E0B'
                 }).then(() => {
                     if (typeof liff !== 'undefined' && liff.isInClient()) {
@@ -818,7 +829,7 @@
                     }
                 });
             } else {
-                showMessage(`????????????????????! ???????????????????? ${requestId}`, 'success');
+                showMessage(`ส่งข้อมูลสำเร็จ! เลขที่คำขอของคุณคือ ${requestId}`, 'success');
                 setTimeout(() => {
                     if (typeof liff !== 'undefined' && liff.isInClient()) {
                         liff.closeWindow();
@@ -829,12 +840,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
